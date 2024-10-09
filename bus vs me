@@ -7,6 +7,19 @@ time_waiting_for_bus = 15
 # for me, the numbers represent the measure of the distance (on foot, in 0.1mile intervals for integer values), whereas in the bus matrix they are timings between stops according to weekday timetables, at 9:30am. (first term from the 29th of september)
 dist_me = [[0, 0, 0, 16, 15, 0, 0], [0, 0, 4, 3, 3, 0, 0], [0, 4, 0, 4, 0, 3, 0], [16, 3, 4, 0, 0, 0, 0], [15, 3, 0, 0, 0, 7, 0], [0, 0, 3, 0, 7, 0, 4], [0, 0, 0, 0, 0, 4, 0]]
 dist_bus = [[0, 12, 0, 0, 10, 0, 0], [0, 0, 7, 3, 0, 0, 9], [0, 6, 0, 0, 0, 0, 0], [14, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 4, 0], [19, 0, 0, 0, 0, 0, 0], [0, 19, 0, 0, 0, 0, 0]]
+dict = {
+    "Uni":0,
+    "Dorchester Rd":1,
+    "Green Park":2,
+    "Bath Abbey":3, 
+    "Lyncombe Rd":4,
+    "St James Cem":5, 
+    "Lower Bristol Rd":6
+}
+
+# this is an application of Dijkstra's algorithm, which sets a node as 'visited' once you reach a given distance from the starting node and uses it in the further calculations to find the next closest node
+# note this is an O(n^2) algorithm implementation, so not practical for larger node maps - maybe I'll improve it later :)
+
 
 def me(i): 
     visits = np.zeros((len(dist_me)), dtype=int)
@@ -41,23 +54,32 @@ def bus(i):
     return visits
 
 def who_wins(i, j):
-    return int(bus(i)[j]+time_waiting_for_bus), int((me(i)[j]*10)/walking_speed)
+    start = dict[i]
+    end = dict[j]
+    return int(bus(start)[end]+time_waiting_for_bus), int((me(start)[end]*10)/walking_speed)
 
 def evaluate():
     ans = tk.StringVar()
-    ans.set(who_wins(int(e1.get()), int(e2.get())))
+    ans.set(who_wins(e1.get(), e2.get()))
     blank.delete(0, tk.END)
     blank.insert(0, ans.get())
     e1.delete(0, tk.END)
     e2.delete(0, tk.END)
 
-
-
+#basic tkinter stuff
 
 window = tk.Tk()
 tk.Label(window, text="Start").grid(row=0)
 tk.Label(window, text="End").grid(row=1)
-tk.Label(window, text = "The times are:").grid(row=2)
+tk.Label(window, text = "The times are (bus, me):").grid(row=2)
+tk.Label(window, text = "Stops").grid(row=4)
+tk.Label(window, text = "Uni").grid(row=5)
+tk.Label(window, text = "Dorchester Rd").grid(row=6)
+tk.Label(window, text = "Green Park").grid(row=7)
+tk.Label(window, text = "Bath Abbey").grid(row=8)
+tk.Label(window, text = "Lyncombe Rd").grid(row=9)
+tk.Label(window, text = "St James Cem").grid(row=10)
+tk.Label(window, text = "Lower Bristol Rd").grid(row=11)
 
 e1 = tk.Entry(window)
 e2 = tk.Entry(window)
@@ -72,3 +94,12 @@ tk.Button(window, text='Quit', command=window.quit).grid(row=3, column=0, sticky
 
 window.mainloop()
 tk.mainloop()
+
+# this final bit was to calc which routes are faster to take the bus
+def calc_all():
+    for i in range(len(dist_me)):
+        for j in range(len(dist_me)):
+            if int((me(i)[j]*10)/walking_speed) > int(bus(i)[j]+time_waiting_for_bus):
+                print(int((me(i)[j]*10)/walking_speed), int(bus(i)[j]+time_waiting_for_bus), i , j)
+
+calc_all()
