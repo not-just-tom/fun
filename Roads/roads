@@ -1,0 +1,57 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from datetime import datetime 
+pd.set_option('display.max_rows', None)
+
+df = pd.read_csv('london_roads.csv')
+
+#basic data cleaning to focus on roads in london, and remove unecessary additional data for this project
+
+#df = df.loc[df['region_name'] == 'London']
+#df.drop(['count_point_id', 'year', 'region_id', 'region_ons_code', 'local_authority_id', 'local_authority_code', 'road_category', 'easting', 'northing', 'latitude', 'longitude', 'link_length_miles', 'pedal_cycles', 'two_wheeled_motor_vehicles', 'cars_and_taxis', 'buses_and_coaches', 'LGVs', 'HGVs_2_rigid_axle', 'HGVs_3_rigid_axle', 'HGVs_4_or_more_rigid_axle', 'HGVs_3_or_4_articulated_axle', 'HGVs_5_articulated_axle', 'HGVs_6_articulated_axle', 'all_HGVs'] , axis=1, inplace = True)
+#df.to_csv('london_roads.csv')
+
+M1 = df.loc[df['road_name'] == 'M1']
+M1.sort_values(by=['count_date'], inplace=True)
+y = M1['all_motor_vehicles']
+x = np.arange(len(y))
+
+fig, axs = plt.subplots(2)
+
+axs[0].set_title("Total traffic on M1")
+axs[0].set(xlabel ="Date + Hour", ylabel = "Traffic numbers")
+axs[0].plot(x, y)
+
+
+arr = []
+arr2 = []
+dates = list(set(M1['count_date']))
+
+for date in dates:
+    y_date = M1.loc[M1['count_date'] == date]
+    y_date = y_date.groupby(by=['hour']).sum()
+    x = np.arange(7, 19)
+    axs[1].plot(x, y_date['all_motor_vehicles'], ls = '--', alpha = 0.35)
+
+for i in range(7, 19):
+    times = M1.loc[M1['hour'] == i]
+    sum = times['all_motor_vehicles'].sum()
+    arr.append(sum/len(dates))
+    
+#for i in range(7, 19):
+    #times = M1.loc[M1['hour'] == i]
+    #sum = times['all_motor_vehicles'].sum()
+    #arr2.append(sum/len(times))
+
+
+#plt.plot(np.arange(7, 19), arr2, color='black', lw=2)
+axs[1].plot(np.arange(7, 19), arr, color='black', lw=2)
+
+
+axs[1].set_title('All days recorded')
+axs[1].set(xlabel = 'Time (hrs)', ylabel = 'Traffic numbers')
+plt.show()
+
+
+
