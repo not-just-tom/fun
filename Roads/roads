@@ -19,7 +19,7 @@ x = np.arange(len(y))
 
 fig, axs = plt.subplots(2)
 
-axs[0].set_title("Total traffic on M1")
+axs[0].set_title("Traffic on M1")
 axs[0].set(xlabel ="Date + Hour", ylabel = "Traffic numbers")
 axs[0].plot(x, y)
 
